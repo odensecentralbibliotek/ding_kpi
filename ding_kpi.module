@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * Adds the web-trends tracking code to the site.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function ding_kpi_menu() {
+  $items = array();
+
+  $items['admin/config/ding/kpi'] = array(
+    'title' => 'kpi',
+    'description' => 'Settings for the kpi analytics tool.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ding_kpi_admin_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'ding_kpi.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function ding_kpi_page_alter(&$page) {
+  // Get configuration variables set in the administration interface.
+  $domain = variable_get('kpi_domain', FALSE);
+  $dcs_id = variable_get('kpi_dcs_id', FALSE);
+
+  // Check that kpi have been configured.
+  if (!$domain || !$dcs_id) {
+    watchdog('ding_kpi', 'Ding kpi module not configured.', array(), WATCHDOG_NOTICE);
+    return;
+  }
+
+  // Create custom inline script.
+  $script = <<<EOT
+var _tag=new kpi();
+_tag.fpcdom = ".$domain";
+_tag.dcsid = "$dcs_id";
+_tag.dcsGetId();
+
+_tag.dcsCustom=function(){
+  if (typeof Drupal.settings.tingSearch != 'undefined') {
+    _tag.WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
+    // The result count is unknown when the page is loaded, so we just say 1.
+    _tag.WT.oss_r = 1;
+  }
+}
+_tag.dcsCollect();
+EOT;
+
+  drupal_add_js($script, array(
+    'type' => 'inline',
+    'scope' => 'footer',
+    'weight' => 99,
+    'cache' => TRUE,
+  ));
+
+  // Fallback HTML if JS is not enabled.
+  $html = '<noscript>
+            <div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="//statse.webtrendslive.com/$dcs_id/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=10.4.1&amp;dcssip=$domain"/></div>
+           </noscript>';
+
+  $page['footer']['kpi'] = array(
+    '#type' => 'markup',
+    '#markup' => $html,
+  );
+}
