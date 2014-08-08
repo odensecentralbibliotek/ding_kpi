@@ -38,7 +38,7 @@ function ding_kpi_page_alter(&$page) {
 
   // Create custom inline script.
   $script = <<<EOT
-var _tag=new kpi();
+var _tag=new Webtrends.dcs();
 _tag.fpcdom = ".$domain";
 _tag.dcsid = "$dcs_id";
 _tag.dcsGetId();
