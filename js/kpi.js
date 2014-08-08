@@ -867,6 +867,9 @@
 					event: undefined,
 					argsa: []
 				};
+                                if (typeof(this.dcsCustom)=="function"){
+                                    this.dcsCustom();
+                                }
 				if (typeof o['argsa'] === "undefined") o['argsa'] = [];
 				this.enQueue('collect', o);
 				return this;
