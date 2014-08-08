@@ -866,8 +866,8 @@
 					element: undefined,
 					event: undefined,
 					argsa: []
-				};
-                                if (typeof(this.dcsCustom)=="function"){
+				};                              
+                                if (typeof 0 === "function"){
                                     this.dcsCustom();
                                 }
 				if (typeof o['argsa'] === "undefined") o['argsa'] = [];
@@ -875,7 +875,7 @@
 				return this;
 			} catch (e) {
 				this.errors.push(e);
-				this.errorlogger(e);
+				
 			}
 		},
 		dcsMultiTrack: function (o) {
@@ -1293,6 +1293,9 @@
 			}
 		},
 		dcsCollect: function () {
+                    if (typeof(this.dcsCustom)=="function"){
+                                    this.dcsCustom();
+                                }
 			return this.track.apply(this, arguments);
 		},
 		enQueue: function (action, o) {
