@@ -38,32 +38,52 @@ function ding_kpi_page_alter(&$page) {
 
   // Create custom inline script.
   $script = <<<EOT
-window.webtrendsAsyncLoad=function(dcs){
-dcs.DCSext.t_B02 = document.URL.split('/')[3];
-      dcs.DCSext.z_brand = XlateBrand(document.URL).Name;
-}
 
-    
-     
-
-EOT;
-/**
- * window.webtrendsAsyncInit = function(){
+window.webtrendsAsyncInit=function(){
     var dcs=new Webtrends.dcs().init({
         dcsid: "$dcs_id",
         domain:"statse.webtrendslive.com",
-        fpcdom: "$domain",       
-        timezone:-3
-        });
-    // extract info from to URL
-  if (typeof Drupal.settings.tingSearch != 'undefined') {
-    dcs.WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
-    // The result count is unknown when the page is loaded, so we just say 1.
-    dcs.WT.oss_r = 1;
-      }
-    dcs.track();
- };
- */
+        timezone:1,
+        i18n:true,
+        adimpressions:true,
+        adsparam:"WT.ac",
+        offsite:true,
+        download:true,
+        downloadtypes:"avi,csv,doc,docx,exe,gzip,mp3,mp4,pdf,ppt,pptx,rar,txt,wav,xls,xlsx,zip",
+        fpcdom: ".$domain",
+        }).track();
+
+};
+
+(function(){
+    var s=document.createElement("script"); s.async=true; s.src="/sites/all/modules/custom/ding_kpi/js/kpi.min.js?na58c";    
+    var s2=document.getElementsByTagName("script")[0]; s2.parentNode.insertBefore(s,s2);
+}());        
+
+EOT;
+  
+function ding_kpi_html_head_alter(&$head_elements) {
+    $Query = "";
+    $SearchResults = drupal_static('ting_search_results');
+    if (strpos($_GET["q"], 'search/ting/') !== FALSE || strpos($_GET["q"], 'search/node/') !== 'search/node/'
+            && isset($SearchResults->numTotalObjects) )
+    {
+        $Query = explode('/', $_GET["q"]);
+        $Query = $Query[sizeof($Query)-1];
+        $head_elements['Search_keywords'] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'meta',
+            '#attributes' => array('name' => 'WT.oss', 'content' => $Query ),
+          );
+          $head_elements['Search_count'] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'meta',
+            '#attributes' => array('name' => 'WT.oss_r', 'content' => $SearchResults->numTotalObjects != false ? $SearchResults->numTotalObjects : 0),
+          );
+    }   
+
+}
+
   drupal_add_js($script, array(
     'type' => 'inline',
     'scope' => 'footer',
@@ -71,15 +91,10 @@ EOT;
     'cache' => TRUE,
   ));
 
-
- drupal_add_js(drupal_get_path('module', 'ding_kpi') . '/js/webtrends.load.js?dcs_id='.$dcs_id.'&domain='.$domain, 'external');
-
   // Fallback HTML if JS is not enabled.
   $html = '<noscript>
             <div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="//statse.webtrendslive.com/'.$dcs_id.'/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=10.4.1&amp;dcssip='.$domain.'"/></div>
-<meta name="WT.oss" content="%encodeURIComponent(Drupal.settings.tingSearch.keys);%" />
-<meta name="WT.oss_r" content="%1%" />
-</noscript>';
+          </noscript>';
 
   $page['footer']['kpi'] = array(
     '#type' => 'markup',
