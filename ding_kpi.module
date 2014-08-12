@@ -61,15 +61,15 @@ window.webtrendsAsyncInit=function(){
 }());        
 
 EOT;
-  
+
 function ding_kpi_html_head_alter(&$head_elements) {
     $Query = "";
     $SearchResults = drupal_static('ting_search_results');
-    if (strpos($_GET["q"], 'search/ting/') !== FALSE || strpos($_GET["q"], 'search/node/') !== 'search/node/'
-            && isset($SearchResults->numTotalObjects) )
+    if (strpos($_GET["q"], 'search/ting/') !== FALSE || strpos($_GET["q"], 'search/node/') !== false )
     {
         $Query = explode('/', $_GET["q"]);
         $Query = $Query[sizeof($Query)-1];
+        $SearchCount = strpos($_GET["q"], 'search/ting/') !== FALSE ? $SearchResults->numTotalObjects : "1";
         $head_elements['Search_keywords'] = array(
             '#type' => 'html_tag',
             '#tag' => 'meta',
@@ -78,7 +78,7 @@ function ding_kpi_html_head_alter(&$head_elements) {
           $head_elements['Search_count'] = array(
             '#type' => 'html_tag',
             '#tag' => 'meta',
-            '#attributes' => array('name' => 'WT.oss_r', 'content' => $SearchResults->numTotalObjects != false ? $SearchResults->numTotalObjects : 0),
+            '#attributes' => array('name' => 'WT.oss_r', 'content' => $SearchCount),
           );
     }   
 
