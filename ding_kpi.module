@@ -38,21 +38,32 @@ function ding_kpi_page_alter(&$page) {
 
   // Create custom inline script.
   $script = <<<EOT
-var _tag=new Webtrends.dcs();
-_tag.fpcdom = ".$domain";
-_tag.dcsid = "$dcs_id";
-_tag.dcsGetId();
-
-_tag.dcsCustom=function(){
-  if (typeof Drupal.settings.tingSearch != 'undefined') {
-    _tag.WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
-    // The result count is unknown when the page is loaded, so we just say 1.
-    _tag.WT.oss_r = 1;
-  }
+window.webtrendsAsyncLoad=function(dcs){
+dcs.DCSext.t_B02 = document.URL.split('/')[3];
+      dcs.DCSext.z_brand = XlateBrand(document.URL).Name;
 }
-_tag.dcsCollect();
-EOT;
 
+    
+     
+
+EOT;
+/**
+ * window.webtrendsAsyncInit = function(){
+    var dcs=new Webtrends.dcs().init({
+        dcsid: "$dcs_id",
+        domain:"statse.webtrendslive.com",
+        fpcdom: "$domain",       
+        timezone:-3
+        });
+    // extract info from to URL
+  if (typeof Drupal.settings.tingSearch != 'undefined') {
+    dcs.WT.oss = encodeURIComponent(Drupal.settings.tingSearch.keys);
+    // The result count is unknown when the page is loaded, so we just say 1.
+    dcs.WT.oss_r = 1;
+      }
+    dcs.track();
+ };
+ */
   drupal_add_js($script, array(
     'type' => 'inline',
     'scope' => 'footer',
@@ -60,10 +71,15 @@ EOT;
     'cache' => TRUE,
   ));
 
+
+ drupal_add_js(drupal_get_path('module', 'ding_kpi') . '/js/webtrends.load.js?dcs_id='.$dcs_id.'&domain='.$domain, 'external');
+
   // Fallback HTML if JS is not enabled.
   $html = '<noscript>
-            <div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="//statse.webtrendslive.com/$dcs_id/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=10.4.1&amp;dcssip=$domain"/></div>
-           </noscript>';
+            <div><img alt="DCSIMG" id="DCSIMG" width="1" height="1" src="//statse.webtrendslive.com/'.$dcs_id.'/njs.gif?dcsuri=/nojavascript&amp;WT.js=No&amp;WT.tv=10.4.1&amp;dcssip='.$domain.'"/></div>
+<meta name="WT.oss" content="%encodeURIComponent(Drupal.settings.tingSearch.keys);%" />
+<meta name="WT.oss_r" content="%1%" />
+</noscript>';
 
   $page['footer']['kpi'] = array(
     '#type' => 'markup',
