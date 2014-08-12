@@ -69,7 +69,15 @@ function ding_kpi_html_head_alter(&$head_elements) {
     {
         $Query = explode('/', $_GET["q"]);
         $Query = $Query[sizeof($Query)-1];
-        $SearchCount = strpos($_GET["q"], 'search/ting/') !== FALSE ? $SearchResults->numTotalObjects : "1";
+        if(isset($SearchResults->numTotalObjects))
+        {
+            $SearchCount = strpos($_GET["q"], 'search/ting/') !== FALSE ? $SearchResults->numTotalObjects : "1";
+        }
+        else
+        {
+            $SearchCount = "1";
+        }
+        
         $head_elements['Search_keywords'] = array(
             '#type' => 'html_tag',
             '#tag' => 'meta',
