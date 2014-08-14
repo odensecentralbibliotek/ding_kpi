@@ -68,7 +68,11 @@ function ding_kpi_html_head_alter(&$head_elements) {
     if (strpos($_GET["q"], 'search/ting/') !== FALSE || strpos($_GET["q"], 'search/node/') !== false )
     {
         $Query = explode('/', $_GET["q"]);
-        $Query = $Query[sizeof($Query)-1];
+        
+        if(sizeof($Query)== 3 && $Query[sizeof($Query)-1])
+        {
+            $Query = $Query[sizeof($Query)-1];
+        }
         if(isset($SearchResults->numTotalObjects))
         {
             $SearchCount = strpos($_GET["q"], 'search/ting/') !== FALSE ? $SearchResults->numTotalObjects : "1";
