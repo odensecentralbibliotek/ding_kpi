@@ -62,40 +62,6 @@ window.webtrendsAsyncInit=function(){
 
 EOT;
 
-function ding_kpi_html_head_alter(&$head_elements) {
-    $Query = "";
-    $SearchResults = drupal_static('ting_search_results');
-    if (strpos($_GET["q"], 'search/ting/') !== FALSE || strpos($_GET["q"], 'search/node/') !== false )
-    {
-        $Query = explode('/', $_GET["q"]);
-        
-        if(sizeof($Query)== 3 && $Query[sizeof($Query)-1])
-        {
-            $Query = $Query[sizeof($Query)-1];
-        }
-        if(isset($SearchResults->numTotalObjects))
-        {
-            $SearchCount = strpos($_GET["q"], 'search/ting/') !== FALSE ? $SearchResults->numTotalObjects : "1";
-        }
-        else
-        {
-            $SearchCount = "1";
-        }
-        
-        $head_elements['Search_keywords'] = array(
-            '#type' => 'html_tag',
-            '#tag' => 'meta',
-            '#attributes' => array('name' => 'WT.oss', 'content' => $Query ),
-          );
-          $head_elements['Search_count'] = array(
-            '#type' => 'html_tag',
-            '#tag' => 'meta',
-            '#attributes' => array('name' => 'WT.oss_r', 'content' => $SearchCount),
-          );
-    }   
-
-}
-
   drupal_add_js($script, array(
     'type' => 'inline',
     'scope' => 'footer',
@@ -112,4 +78,75 @@ function ding_kpi_html_head_alter(&$head_elements) {
     '#type' => 'markup',
     '#markup' => $html,
   );
+}
+function ding_kpi_preprocess_html(&$variables)
+{
+    if (strpos($_GET["q"], 'search/ting/') !== FALSE || strpos($_GET["q"], 'search/node/') !== false )
+    {
+        $Query = "";
+        $SearchResults = drupal_static('ting_search_results');
+        $Query = explode('/', $_GET["q"]);
+        
+        if(sizeof($Query)== 3 && $Query[sizeof($Query)-1])
+        {
+            $Query = $Query[sizeof($Query)-1];
+        }
+        if(isset($SearchResults->numTotalObjects))
+        {
+            $SearchCount = strpos($_GET["q"], 'search/ting/') !== FALSE ? $SearchResults->numTotalObjects : "1";
+        }
+        else
+        {
+            $SearchCount = "1";
+        }
+        $head_element = array(
+                '#type' => 'html_tag',
+                '#tag' => 'meta',
+                '#attributes' => array('name' => 'WT.oss', 'content' => $Query ),
+                '#weight' => '-99999',
+
+              );
+        drupal_add_html_head($head_element,'KpiTerms');
+        $head_element = array(
+          '#type' => 'html_tag',
+          '#tag' => 'meta',
+          '#attributes' => array('name' => 'WT.oss_r', 'content' => $SearchCount),
+          '#weight' => '-99999',
+
+        );
+        drupal_add_html_head($head_element,'KpiCount');
+    }
+}
+function ding_kpi_html_head_alter(&$head_elements) {
+//    $Query = "";
+//    $SearchResults = drupal_static('ting_search_results');
+//    if (strpos($_GET["q"], 'search/ting/') !== FALSE || strpos($_GET["q"], 'search/node/') !== false )
+//    {
+//        $Query = explode('/', $_GET["q"]);
+//        
+//        if(sizeof($Query)== 3 && $Query[sizeof($Query)-1])
+//        {
+//            $Query = $Query[sizeof($Query)-1];
+//        }
+//        if(isset($SearchResults->numTotalObjects))
+//        {
+//            $SearchCount = strpos($_GET["q"], 'search/ting/') !== FALSE ? $SearchResults->numTotalObjects : "1";
+//        }
+//        else
+//        {
+//            $SearchCount = "1";
+//        }
+//        
+//        $head_elements['Search_keywords'] = array(
+//            '#type' => 'html_tag',
+//            '#tag' => 'meta',
+//            '#attributes' => array('name' => 'WT.oss', 'content' => $Query ),
+//          );
+//          $head_elements['Search_count'] = array(
+//            '#type' => 'html_tag',
+//            '#tag' => 'meta',
+//            '#attributes' => array('name' => 'WT.oss_r', 'content' => $SearchCount),
+//          );
+//    }   
+
 }
